@@ -9,18 +9,18 @@ namespace Pong
 {
     public class Ball
     {
-        Point currentLocation;
+        public Point currentLocation { get; set; }
 
         public Ball(int locationX, int locationY)
         {
             Console.WriteLine("New ball created");
-            this.currentLocation = new Point(locationX, locationY)
+            this.currentLocation = new Point(locationX, locationY);
         }
         public void MoveBall(int xMove, int yMove)
         {
-       
-            this.currentLocation.X += xMove;
-            this.currentLocation.Y += yMove;
+            Point newPoint = new Point(currentLocation.X, currentLocation.Y);
+            newPoint.Offset(xMove, yMove);
+            currentLocation = newPoint;
         }
     }
 }
