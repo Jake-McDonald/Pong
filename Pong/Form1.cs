@@ -26,22 +26,28 @@ namespace Pong
         {
             if (ball.currentLocation.X > this.Width -40)
             {
-                    xVelocity = xVelocity * -1;
-                    //ball.currentLocation = new Point(this.Width -200, this.Height / 2);
-                    Debug.WriteLine("Changed velocity - Left");
-            }
-            else if (ball.currentLocation.X < 10)
-            {
+                Point offset = ball.bounce();
                 xVelocity = xVelocity * -1;
+                ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y);
+
+                //ball.currentLocation = new Point(this.Width -200, this.Height / 2);
+                Debug.WriteLine("Changed velocity - Left");
+            }
+            else if (ball.currentLocation.X < 0)
+            {
+                Point offset = ball.bounce();
+                xVelocity = xVelocity * -1;
+                ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y );
+                
                 //ball.currentLocation = new Point(10, this.Height / 2);
                 Debug.WriteLine("Changed velocity - Right");
             }
-            else if(ball.currentLocation.Y > this.Height - 75)
+            else if(ball.currentLocation.Y > this.Height -80)
             {
                 yVelocity = yVelocity * -1;
 
             }
-            else if(ball.currentLocation.Y < 0)
+            else if(ball.currentLocation.Y < -20)
             {
                 yVelocity = yVelocity * -1;
             }
@@ -49,6 +55,8 @@ namespace Pong
             pictureBox1.Location = ball.currentLocation;
             Debug.WriteLine(pictureBox1.Location);
             Debug.WriteLine(ball.currentLocation);
+
+            Refresh();
 
         }
 
