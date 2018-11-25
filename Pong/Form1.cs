@@ -17,8 +17,9 @@ namespace Pong
     {
         private Ball ball;
         private Paddle paddle1;
-        private int xVelocity = 2;
-        private int yVelocity = 2;
+        private Paddle paddle2;
+        private int xVelocity = 3;
+        private int yVelocity = 3;
         private Rectangle topSide;
         private Rectangle bottomSide;
         private Rectangle leftSide;
@@ -26,6 +27,8 @@ namespace Pong
         private const int BOTTOM_SIDE_OFFSET = 42;
         private const int WALL_THICKNESS = 3;
         private const int OFFSET_FROM_WALL = 10;
+        private ScoreKeeper scoreKeeper;
+        private const int PADDLE_SPEED = 3;
 
 
 
@@ -44,7 +47,19 @@ namespace Pong
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (ball.currentLocation.X > this.Width -40)
+            if(ball.boundingBox.IntersectsWith(paddle1.boundingBox))
+            {
+                Point offset = ball.Bounce();
+                xVelocity = xVelocity * -1;
+                ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y);
+            }
+            else if (ball.boundingBox.IntersectsWith(paddle2.boundingBox))
+            {
+                Point offset = ball.Bounce();
+                xVelocity = xVelocity * -1;
+                ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y);
+            }
+            else if (ball.boundingBox.IntersectsWith(rightSide))
             {
                 if (xVelocity > 0)
                 {
@@ -54,9 +69,11 @@ namespace Pong
 
                     //ball.currentLocation = new Point(this.Width -200, this.Height / 2);
                     Debug.WriteLine("Changed velocity - Left");
+                    scoreKeeper.Player1Goal();
+                    Player1Score.Text = scoreKeeper.player1Score.ToString();
                 }
             }
-            else if (ball.currentLocation.X < 0)
+            else if (ball.boundingBox.IntersectsWith(leftSide))
             {
                 if (xVelocity < 0)
                 {
@@ -66,9 +83,11 @@ namespace Pong
 
                     //ball.currentLocation = new Point(10, this.Height / 2);
                     Debug.WriteLine("Changed velocity - Right");
+                    scoreKeeper.Player2Goal();
+                    Player2Score.Text = scoreKeeper.player2Score.ToString();
                 }
             }
-            else if(ball.currentLocation.Y > this.Height -80)
+            else if (ball.boundingBox.IntersectsWith(bottomSide))
             {
                 if (yVelocity > 0)
                 {
@@ -78,13 +97,27 @@ namespace Pong
                 }
 
             }
-            else if(ball.currentLocation.Y < -20)
+            else if (ball.boundingBox.IntersectsWith(topSide))
             {
                 if (yVelocity < 0)
                 {
                     Point offset = ball.Bounce();
                     yVelocity = yVelocity * -1;
                     ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y);
+                }
+            }
+            if (paddle2.boundingBox.Y < ball.currentLocation.Y)
+            {
+                if (!paddle2.boundingBox.IntersectsWith(bottomSide))
+                {
+                    paddle2.MovePaddleDown(PADDLE_SPEED);
+                }
+            }
+            else if(paddle2.boundingBox.Y > ball.currentLocation.Y)
+            {
+                if (!paddle2.boundingBox.IntersectsWith(topSide))
+                { 
+                    paddle2.MovePaddleUp(PADDLE_SPEED);
                 }
             }
             ball.MoveBall(2 * xVelocity, 1  * yVelocity);
@@ -95,12 +128,14 @@ namespace Pong
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            ball = new Ball(this.Width /2, this.Height / 2);
+            ball = new Ball(this.Width /2, this.Height / 2, 32, 32);
             paddle1 = new Paddle(this.Height / 4, 10, OFFSET_FROM_WALL, this.Height / 2);
+            paddle2 = new Paddle(this.Height / 4, 10, this.Width - 40, this.Height / 2);
             topSide = new Rectangle(0, 0, this.Width, WALL_THICKNESS);
             bottomSide = new Rectangle(0, this.Height - BOTTOM_SIDE_OFFSET, this.Width, WALL_THICKNESS);
             leftSide = new Rectangle(0, 0, WALL_THICKNESS, this.Height);
             rightSide = new Rectangle(this.Width - 20, 0, WALL_THICKNESS, this.Height);
+            scoreKeeper = new ScoreKeeper();
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -112,21 +147,40 @@ namespace Pong
         {
             //draw ball
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.FillEllipse(Brushes.Red, new Rectangle(ball.currentLocation.X, ball.currentLocation.Y, 32, 32));
+            e.Graphics.FillEllipse(Brushes.Red, ball.boundingBox);
 
             //draw paddle
             //e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            e.Graphics.FillRectangle(Brushes.Gray, new Rectangle(paddle1.locationX, paddle1.locationY, paddle1.width, paddle1.height));
-            e.Graphics.FillRectangle(Brushes.Gray, topSide);
-            e.Graphics.FillRectangle(Brushes.Gray, bottomSide);
-            e.Graphics.FillRectangle(Brushes.Gray, leftSide);
-            e.Graphics.FillRectangle(Brushes.Gray, rightSide);
+            e.Graphics.FillRectangle(Brushes.Gray, paddle1.boundingBox);
+            e.Graphics.FillRectangle(Brushes.Gray, paddle2.boundingBox);
+            //e.Graphics.FillRectangle(Brushes.Gray, topSide);
+            //e.Graphics.FillRectangle(Brushes.Gray, bottomSide);
+            //e.Graphics.FillRectangle(Brushes.Gray, leftSide);
+            //e.Graphics.FillRectangle(Brushes.Gray, rightSide);
 
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
            
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.A)
+            {
+                if (!paddle1.boundingBox.IntersectsWith(bottomSide))
+                {
+                    paddle1.MovePaddleDown(PADDLE_SPEED);
+                }
+            }
+            else if(e.KeyCode == Keys.Q)
+            {
+                if (!paddle1.boundingBox.IntersectsWith(topSide))
+                {
+                    paddle1.MovePaddleUp(PADDLE_SPEED);
+                }
+            }
         }
     }
 

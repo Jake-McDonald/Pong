@@ -11,18 +11,30 @@ namespace Pong
     {
         public Point currentLocation { get; set; }
         public Random randomNumGenerator;
+        public Rectangle boundingBox { get; set; }
+        public int height;
+        public int width;
 
-        public Ball(int locationX, int locationY)
+        public Ball(int locationX, int locationY, int Width, int Height)
         {
             Console.WriteLine("New ball created");
             this.currentLocation = new Point(locationX, locationY);
             this.randomNumGenerator = new Random();
+            this.boundingBox = new Rectangle(locationX, locationY, Width, Height);
+            this.height = Height;
+            this.width = Width;
         }
         public void MoveBall(int xMove, int yMove)
         {
             Point newPoint = new Point(currentLocation.X, currentLocation.Y);
             newPoint.Offset(xMove, yMove);
             currentLocation = newPoint;
+            updateBoundingBox(xMove, yMove);
+        }
+
+        private void updateBoundingBox(int xMove, int yMove)
+        {
+            boundingBox = new Rectangle(currentLocation.X, currentLocation.Y, width, height);
         }
 
         public Point Bounce()
