@@ -25,10 +25,10 @@ namespace Pong
             currentLocation = newPoint;
         }
 
-        public Point bounce()
+        public Point Bounce()
         {
-            int randomX = randomNumGenerator.Next(0, 2);
-            int randomY = randomNumGenerator.Next(0, 2);
+            int randomX = randomNumGenerator.Next(0, 3);
+            int randomY = randomNumGenerator.Next(0, 3);
             Point randomOffset = new Point(randomX, randomY);
             return randomOffset;
         }
