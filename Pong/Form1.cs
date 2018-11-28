@@ -13,7 +13,6 @@ using System.Windows.Forms;
 namespace Pong
 {
     public partial class Form1 : Form
-
     {
         private Ball ball;
         private Paddle paddle1;
@@ -29,9 +28,6 @@ namespace Pong
         private const int OFFSET_FROM_WALL = 10;
         private ScoreKeeper scoreKeeper;
         private const int PADDLE_SPEED = 3;
-
-
-
 
         public Form1()
         {
@@ -66,11 +62,14 @@ namespace Pong
                     Point offset = ball.Bounce();
                     xVelocity = xVelocity * -1;
                     ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y);
-
-                    //ball.currentLocation = new Point(this.Width -200, this.Height / 2);
-                    Debug.WriteLine("Changed velocity - Left");
                     scoreKeeper.Player1Goal();
+
                     Player1Score.Text = scoreKeeper.player1Score.ToString();
+                    if (scoreKeeper.player1Score == 15)
+                    {
+                        resetGame();
+                    }
+                    else ball.Reset();
                 }
             }
             else if (ball.boundingBox.IntersectsWith(leftSide))
@@ -80,11 +79,13 @@ namespace Pong
                     Point offset = ball.Bounce();
                     xVelocity = xVelocity * -1;
                     ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y);
-
-                    //ball.currentLocation = new Point(10, this.Height / 2);
-                    Debug.WriteLine("Changed velocity - Right");
                     scoreKeeper.Player2Goal();
                     Player2Score.Text = scoreKeeper.player2Score.ToString();
+                    if (scoreKeeper.player2Score == 15)
+                    {
+                        resetGame();
+                    }
+                    else ball.Reset();
                 }
             }
             else if (ball.boundingBox.IntersectsWith(bottomSide))
@@ -95,7 +96,6 @@ namespace Pong
                     yVelocity = yVelocity * -1;
                     ball.MoveBall(4 * xVelocity + offset.X, 4 * yVelocity + offset.Y);
                 }
-
             }
             else if (ball.boundingBox.IntersectsWith(topSide))
             {
@@ -121,8 +121,6 @@ namespace Pong
                 }
             }
             ball.MoveBall(2 * xVelocity, 1  * yVelocity);
-            Debug.WriteLine(ball.currentLocation);
-
             this.Refresh();
         }
 
@@ -138,31 +136,13 @@ namespace Pong
             scoreKeeper = new ScoreKeeper();
         }
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            //draw ball
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.FillEllipse(Brushes.Red, ball.boundingBox);
-
-            //draw paddle
-            //e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.FillRectangle(Brushes.Gray, paddle1.boundingBox);
             e.Graphics.FillRectangle(Brushes.Gray, paddle2.boundingBox);
-            //e.Graphics.FillRectangle(Brushes.Gray, topSide);
-            //e.Graphics.FillRectangle(Brushes.Gray, bottomSide);
-            //e.Graphics.FillRectangle(Brushes.Gray, leftSide);
-            //e.Graphics.FillRectangle(Brushes.Gray, rightSide);
-
-        }
-
-        private void pictureBox1_Paint(object sender, PaintEventArgs e)
-        {
-           
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -182,7 +162,26 @@ namespace Pong
                 }
             }
         }
+
+        private void resetGame()
+        {
+            timer1.Enabled = false;
+            System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.game_over);
+            player.Play();
+            DialogResult dialogResult = MessageBox.Show("Play again?", "Pong", MessageBoxButtons.YesNo);
+
+            if (dialogResult == DialogResult.Yes)
+            {
+                scoreKeeper.Reset();
+                ball.Reset();
+                Player1Score.Text = "0";
+                Player2Score.Text = "0";
+                timer1.Enabled = true;
+            }
+            else if (dialogResult == DialogResult.No)
+            {
+                Application.Exit();
+            }
+        }
     }
-
-
 }

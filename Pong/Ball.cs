@@ -14,6 +14,8 @@ namespace Pong
         public Rectangle boundingBox { get; set; }
         public int height;
         public int width;
+        public int initialX;
+        public int initialY;
 
         public Ball(int locationX, int locationY, int Width, int Height)
         {
@@ -23,6 +25,8 @@ namespace Pong
             this.boundingBox = new Rectangle(locationX, locationY, Width, Height);
             this.height = Height;
             this.width = Width;
+            this.initialX = locationX;
+            this.initialY = locationY;
         }
         public void MoveBall(int xMove, int yMove)
         {
@@ -43,6 +47,11 @@ namespace Pong
             int randomY = randomNumGenerator.Next(0, 3);
             Point randomOffset = new Point(randomX, randomY);
             return randomOffset;
+        }
+
+        public void Reset()
+        {
+            currentLocation = new Point(initialX, initialY);
         }
     }
 }

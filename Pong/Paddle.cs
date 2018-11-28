@@ -41,7 +41,5 @@ namespace Pong
         {
             boundingBox = new Rectangle(currentLocation.X, currentLocation.Y, width, height);
         }
-
-
     }
 }
